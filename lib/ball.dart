@@ -10,13 +10,14 @@ class MyBall extends StatelessWidget {
   final double ballX;
   final double ballY;
 
+  final double diameter = 20;
+
   @override
   Widget build(BuildContext context) {
     return Container(
       alignment: Alignment(ballX, ballY),
       child: Container(
-        height: 15,
-        width: 15,
+        height: diameter,
         decoration: const BoxDecoration(
           color: Colors.deepPurple,
           shape: BoxShape.circle,
