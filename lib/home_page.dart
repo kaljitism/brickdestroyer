@@ -16,8 +16,10 @@ class _HomePageState extends State<HomePage> {
   double ballX = 0;
   double ballY = 0;
 
-  double playerX = 0;
+  double playerX = -0.25;
   double playerWidth = 0.5;
+
+  double playerDY = 0.04;
 
   bool hasGameStarted = false;
 
@@ -27,34 +29,36 @@ class _HomePageState extends State<HomePage> {
     Timer.periodic(const Duration(milliseconds: 10), (timer) {
       setState(() {
         hasGameStarted = true;
-        ballY -= 0.01;
-        if (ballY < -1) {
+        ballY += 0.01;
+        if (ballY > 0.885) {
           timer.cancel();
         }
       });
     });
   }
 
-  void moveLeft(double dx) {
-    setState(() {
-      playerX += dx * movingWeight;
-    });
+  void moveLeft() {
+    if (hasGameStarted) {
+      setState(() {
+        playerX > -1 ? playerX -= playerDY : playerX;
+      });
+    }
   }
 
-  void moveRight(double dx) {
-    setState(() {
-      playerX -= dx * movingWeight;
-    });
+  void moveRight() {
+    if (hasGameStarted) {
+      setState(() {
+        playerX + playerWidth < 1 ? playerX += playerDY : playerX;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onHorizontalDragUpdate: (details) {
-        // Swiping in right direction.
-        if (details.delta.dx > 0) moveRight(details.delta.dx);
-        // Swiping in left direction.
-        if (details.delta.dx < 0) moveLeft(details.delta.dx);
+        if (details.delta.dx > 0) moveRight();
+        if (details.delta.dx < 0) moveLeft();
       },
       child: GestureDetector(
         onTap: startGame,
@@ -70,7 +74,18 @@ class _HomePageState extends State<HomePage> {
                   ballX: ballX,
                   ballY: ballY,
                 ),
-                Player(playerX: playerX, playerWidth: playerWidth)
+                Player(
+                  playerX: playerX,
+                  playerWidth: playerWidth,
+                ),
+                Container(
+                  alignment: Alignment(playerX, 0.9),
+                  child: Container(
+                    height: 15,
+                    width: 10,
+                    color: Colors.red,
+                  ),
+                ),
               ],
             ),
           ),
