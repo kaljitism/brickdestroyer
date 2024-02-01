@@ -12,31 +12,60 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
+enum Direction { up, down }
+
 class _HomePageState extends State<HomePage> {
+  // Ball Position Variables
   double ballX = 0;
   double ballY = 0;
+  Direction direction = Direction.down;
 
+  // Player Position Variables
   double playerX = -0.25;
   double playerWidth = 0.5;
 
   double playerDY = 0.04;
 
+  // Game Settings
   bool hasGameStarted = false;
 
-  double movingWeight = 0.01;
-
+  // start the game
   void startGame() {
-    Timer.periodic(const Duration(milliseconds: 10), (timer) {
-      setState(() {
-        hasGameStarted = true;
+    moveBall();
+    updateDirection();
+
+    hasGameStarted = true;
+    Timer.periodic(
+      const Duration(milliseconds: 10),
+      (timer) {
+        moveBall();
+      },
+    );
+  }
+
+  // Move the Ball
+  void moveBall() {
+    setState(() {
+      if (direction == Direction.down) {
         ballY += 0.01;
-        if (ballY > 0.885) {
-          timer.cancel();
-        }
-      });
+      } else if (direction == Direction.down) {
+        ballY -= 0.01;
+      }
     });
   }
 
+  // Update the Ball Direction
+  void updateDirection() {
+    setState(() {
+      if (ballY > 0.9) {
+        direction = Direction.up;
+      } else if (ballY < -0.9) {
+        direction = Direction.down;
+      }
+    });
+  }
+
+  // move player left
   void moveLeft() {
     if (hasGameStarted) {
       setState(() {
@@ -45,6 +74,7 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  // move player right
   void moveRight() {
     if (hasGameStarted) {
       setState(() {
