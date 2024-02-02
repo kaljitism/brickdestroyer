@@ -21,7 +21,8 @@ class Brick extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      alignment: Alignment(brickX, brickY),
+      alignment:
+          Alignment((2 * brickX + brickWidth) / (2 - brickWidth), brickY),
       child: brickBroken
           ? Container()
           : Container(
