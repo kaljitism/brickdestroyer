@@ -21,7 +21,7 @@ class _HomePageState extends State<HomePage> {
   double ballX = 0;
   double ballY = 0;
   double ballXIncrements = 0.01;
-  double ballYIncrements = 0.01;
+  double ballYIncrements = 0.02;
   Direction ballYDirection = Direction.down;
   Direction ballXDirection = Direction.left;
 
