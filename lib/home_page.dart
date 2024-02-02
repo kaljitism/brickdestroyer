@@ -14,15 +14,16 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-enum Direction { up, down }
+enum Direction { up, down, left, right }
 
 class _HomePageState extends State<HomePage> {
-  // Ball Position Variables
+  // Ball Variables
   double ballX = 0;
   double ballY = 0;
-  double ballXIncrements = 0;
-  double ballYIncrements = 0;
-  Direction direction = Direction.down;
+  double ballXIncrements = 0.01;
+  double ballYIncrements = 0.01;
+  Direction ballYDirection = Direction.down;
+  Direction ballXDirection = Direction.left;
 
   // Player Position Variables
   double playerX = -0.25;
@@ -32,13 +33,51 @@ class _HomePageState extends State<HomePage> {
   double playerDY = 0.04;
 
   // Brick Variables
-  double brickX = 0;
-  double brickY = -0.8;
+  static double firstBrickX = 0;
+  static double firstBrickY = -0.8;
 
-  double brickHeight = 0.02;
-  double brickWidth = 0.2;
+  static double brickHeight = 0.02;
+  static double brickWidth = 0.2;
+
+  static double brickXPadding = 0.4;
+  static double brickYPadding = 0.05;
+
+  Color brickColor = Colors.deepPurple.shade900;
 
   bool brickBroken = false;
+
+  static List bricks = [
+    // First Row
+    [firstBrickX, firstBrickY, false],
+    [firstBrickX + brickWidth + brickXPadding, firstBrickY, false],
+    [firstBrickX - brickWidth - brickXPadding, firstBrickY, false],
+
+    // Second Row
+    [firstBrickX, firstBrickY - brickHeight - brickYPadding, false],
+    [
+      firstBrickX + brickWidth + brickXPadding,
+      firstBrickY - brickHeight - brickYPadding,
+      false
+    ],
+    [
+      firstBrickX - brickWidth - brickXPadding,
+      firstBrickY - brickHeight - brickYPadding,
+      false
+    ],
+
+    // Third Row
+    [firstBrickX, firstBrickY - 2 * (brickHeight - brickYPadding), false],
+    [
+      firstBrickX + brickWidth + brickXPadding,
+      firstBrickY - 2 * (brickHeight - brickYPadding),
+      false
+    ],
+    [
+      firstBrickX - brickWidth - brickXPadding,
+      firstBrickY - 2 * (brickHeight - brickYPadding),
+      false
+    ],
+  ];
 
   // Game Settings
   bool hasGameStarted = false;
@@ -66,10 +105,21 @@ class _HomePageState extends State<HomePage> {
   // Move the Ball
   void moveBall() {
     setState(() {
-      if (direction == Direction.down) {
-        ballY += 0.01;
-      } else if (direction == Direction.up) {
-        ballY -= 0.01;
+      // log('$ballX, $ballY');
+      // Move Horizontally
+      if (ballXDirection == Direction.left) {
+        ballX -= ballXIncrements;
+      }
+      if (ballXDirection == Direction.right) {
+        ballX += ballXIncrements;
+      }
+
+      // Move Vertically
+      if (ballYDirection == Direction.down) {
+        ballY += ballYIncrements;
+      }
+      if (ballYDirection == Direction.up) {
+        ballY -= ballYIncrements;
       }
     });
   }
@@ -77,10 +127,21 @@ class _HomePageState extends State<HomePage> {
   // Update the Ball Direction
   void updateDirection() {
     setState(() {
+      // ball goes up when it hits the player
       if (ballY >= 0.9 && ballX >= playerX && ballX <= playerY + playerWidth) {
-        direction = Direction.up;
-      } else if (ballY < -0.9) {
-        direction = Direction.down;
+        ballYDirection = Direction.up;
+      }
+      // ball goes down when it hits the top
+      if (ballY <= -1) {
+        ballYDirection = Direction.down;
+      }
+
+      // update direction horizontally
+      if (ballX <= -1) {
+        ballXDirection = Direction.right;
+      }
+      if (ballX >= 1) {
+        ballXDirection = Direction.left;
       }
     });
   }
@@ -105,13 +166,13 @@ class _HomePageState extends State<HomePage> {
 
   // Check if the brick is broken
   void checkForBrokenBricks() {
-    if (ballX >= brickX &&
-        ballX <= brickX + brickWidth &&
-        ballY <= brickY + brickHeight &&
+    if (ballX >= bricks[0][0] &&
+        ballX <= bricks[0][0] + brickWidth &&
+        ballY <= bricks[0][1] + brickHeight &&
         brickBroken == false) {
       setState(() {
         brickBroken = true;
-        direction = Direction.down;
+        ballYDirection = Direction.down;
       });
     }
   }
@@ -136,40 +197,99 @@ class _HomePageState extends State<HomePage> {
         child: Scaffold(
           backgroundColor: Colors.deepPurple.shade100,
           body: Center(
-            child: Stack(
-              children: [
-                CoverScreen(
-                  hasGameStarted: hasGameStarted,
-                ),
-                GameOverScreen(
-                  isGameOver: isGameOver,
-                ),
-                Brick(
-                  brickX: brickX,
-                  brickY: brickY,
-                  brickHeight: brickHeight,
-                  brickWidth: brickWidth,
-                  brickBroken: brickBroken,
-                ),
-                MyBall(
-                  ballX: ballX,
-                  ballY: ballY,
-                ),
-                Player(
-                  playerX: playerX,
-                  playerY: playerY,
-                  playerWidth: playerWidth,
-                ),
-                Container(
-                  alignment: Alignment(brickX, brickY),
-                  child: Container(
-                    color: Colors.blue,
-                    width: 5,
-                    height: 10,
+            child: Builder(builder: (context) {
+              return Stack(
+                children: [
+                  CoverScreen(
+                    hasGameStarted: hasGameStarted,
                   ),
-                ),
-              ],
-            ),
+                  GameOverScreen(
+                    isGameOver: isGameOver,
+                  ),
+                  Brick(
+                    brickX: bricks[0][0],
+                    brickY: bricks[0][1],
+                    brickHeight: brickHeight,
+                    brickWidth: brickWidth,
+                    brickBroken: brickBroken,
+                    color: brickColor,
+                  ),
+                  Brick(
+                    brickX: bricks[1][0],
+                    brickY: bricks[1][1],
+                    brickHeight: brickHeight,
+                    brickWidth: brickWidth,
+                    brickBroken: brickBroken,
+                    color: brickColor,
+                  ),
+                  Brick(
+                    brickX: bricks[2][0],
+                    brickY: bricks[2][1],
+                    brickHeight: brickHeight,
+                    brickWidth: brickWidth,
+                    brickBroken: brickBroken,
+                    color: brickColor,
+                  ),
+                  Brick(
+                    brickX: bricks[3][0],
+                    brickY: bricks[3][1],
+                    brickHeight: brickHeight,
+                    brickWidth: brickWidth,
+                    brickBroken: brickBroken,
+                    color: brickColor,
+                  ),
+                  Brick(
+                    brickX: bricks[4][0],
+                    brickY: bricks[4][1],
+                    brickHeight: brickHeight,
+                    brickWidth: brickWidth,
+                    brickBroken: brickBroken,
+                    color: brickColor,
+                  ),
+                  Brick(
+                    brickX: bricks[5][0],
+                    brickY: bricks[5][1],
+                    brickHeight: brickHeight,
+                    brickWidth: brickWidth,
+                    brickBroken: brickBroken,
+                    color: brickColor,
+                  ),
+                  Brick(
+                    brickX: bricks[6][0],
+                    brickY: bricks[6][1],
+                    brickHeight: brickHeight,
+                    brickWidth: brickWidth,
+                    brickBroken: brickBroken,
+                    color: brickColor,
+                  ),
+                  Brick(
+                    brickX: bricks[7][0],
+                    brickY: bricks[7][1],
+                    brickHeight: brickHeight,
+                    brickWidth: brickWidth,
+                    brickBroken: brickBroken,
+                    color: brickColor,
+                  ),
+                  Brick(
+                    brickX: bricks[8][0],
+                    brickY: bricks[8][1],
+                    brickHeight: brickHeight,
+                    brickWidth: brickWidth,
+                    brickBroken: brickBroken,
+                    color: brickColor,
+                  ),
+                  MyBall(
+                    ballX: ballX,
+                    ballY: ballY,
+                  ),
+                  Player(
+                    playerX: playerX,
+                    playerY: playerY,
+                    playerWidth: playerWidth,
+                  ),
+                ],
+              );
+            }),
           ),
         ),
       ),

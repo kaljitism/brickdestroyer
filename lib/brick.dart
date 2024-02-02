@@ -8,6 +8,7 @@ class Brick extends StatelessWidget {
     required this.brickBroken,
     required this.brickHeight,
     required this.brickWidth,
+    required this.color,
   });
 
   final double brickX;
@@ -15,6 +16,7 @@ class Brick extends StatelessWidget {
   final bool brickBroken;
   final double brickHeight;
   final double brickWidth;
+  final Color color;
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +28,7 @@ class Brick extends StatelessWidget {
               height: MediaQuery.of(context).size.height * brickHeight / 2,
               width: MediaQuery.of(context).size.height * brickWidth / 2,
               decoration: BoxDecoration(
-                color: Colors.redAccent,
+                color: color,
                 borderRadius: BorderRadius.circular(40),
               ),
             ),

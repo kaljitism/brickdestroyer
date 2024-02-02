@@ -18,6 +18,7 @@ class MyBall extends StatelessWidget {
       alignment: Alignment(ballX, ballY),
       child: Container(
         height: diameter,
+        width: diameter,
         decoration: const BoxDecoration(
           color: Colors.deepPurple,
           shape: BoxShape.circle,
